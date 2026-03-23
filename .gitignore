@@ -1,5 +1,7 @@
 # Dependencies
 node_modules/
+.pnp
+.pnp.js
 .pnpm-store/
 .npm/
 .yarn/cache/
@@ -12,6 +14,7 @@ build/
 coverage/
 .vite/
 *.tsbuildinfo
+next-env.d.ts
 
 # Environment files
 .env
@@ -52,6 +55,7 @@ cypress/screenshots/
 .idea/
 .cursor/
 *.iml
+.vercel/
 
 # OS junk
 .DS_Store
