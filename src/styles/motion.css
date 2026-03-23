@@ -1,0 +1,342 @@
+/* ═══════════════════════════════════════════════════════════════
+   MOTION SYSTEM — MAGIC INSIDE CONCRETE
+   ─────────────────────────────────────────────────────────────
+   10 motion patterns. System ritual, not flashy animation.
+   All disabled under prefers-reduced-motion.
+   Uses timing tokens from :root.
+   Imported globally via main.jsx.
+   ═══════════════════════════════════════════════════════════════ */
+
+
+/* ── TIMING TOKENS ── */
+
+:root {
+  --motion-fast: 120ms;
+  --motion-base: 200ms;
+  --motion-slow: 400ms;
+  --motion-reveal: 600ms;
+}
+
+
+/* ═══════════════════════════════════════════════
+   KEYFRAMES
+   ═══════════════════════════════════════════════ */
+
+@keyframes motion-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes motion-fade-up-panel {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes motion-scale-x {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes motion-line-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+
+
+/* ═══════════════════════════════════════════════
+   1. SECTION SCROLL REVEAL
+   ─────────────────────────────────────────────
+   Add .motion-reveal to a section container.
+   It stays invisible until .motion-visible is
+   toggled by useScrollReveal (IntersectionObserver).
+   ═══════════════════════════════════════════════ */
+
+.motion-reveal {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.motion-reveal.motion-visible {
+  animation: motion-fade-up var(--motion-reveal) ease-out forwards;
+}
+
+
+/* ═══════════════════════════════════════════════
+   2. STAGGERED CHILDREN
+   ─────────────────────────────────────────────
+   Add .motion-stagger to a parent that has
+   .motion-reveal. Children get 60ms incremental
+   delay via --stagger CSS variable.
+   ═══════════════════════════════════════════════ */
+
+.motion-stagger > * {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.motion-visible .motion-stagger > * {
+  animation: motion-fade-up var(--motion-slow) ease-out forwards;
+  animation-delay: calc(var(--stagger, 0) * 60ms);
+}
+
+.motion-stagger > *:nth-child(1)  { --stagger: 0; }
+.motion-stagger > *:nth-child(2)  { --stagger: 1; }
+.motion-stagger > *:nth-child(3)  { --stagger: 2; }
+.motion-stagger > *:nth-child(4)  { --stagger: 3; }
+.motion-stagger > *:nth-child(5)  { --stagger: 4; }
+.motion-stagger > *:nth-child(6)  { --stagger: 5; }
+.motion-stagger > *:nth-child(7)  { --stagger: 6; }
+.motion-stagger > *:nth-child(8)  { --stagger: 7; }
+.motion-stagger > *:nth-child(9)  { --stagger: 8; }
+.motion-stagger > *:nth-child(10) { --stagger: 9; }
+
+
+/* ═══════════════════════════════════════════════
+   3. PANEL SLIDE-UP REVEAL
+   ─────────────────────────────────────────────
+   Like section reveal but for individual panels.
+   Slightly more translateY (16px) and slower.
+   ═══════════════════════════════════════════════ */
+
+.motion-panel {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.motion-panel.motion-visible {
+  animation: motion-fade-up-panel var(--motion-reveal) ease-out forwards;
+}
+
+
+/* ═══════════════════════════════════════════════
+   4. BORDER ACTIVATION ON HOVER
+   ─────────────────────────────────────────────
+   Add .motion-border to any bordered element.
+   Border transitions from default to accent.
+   ═══════════════════════════════════════════════ */
+
+.motion-border {
+  transition: border-color var(--motion-base) ease;
+}
+
+.motion-border:hover {
+  border-color: var(--color-accent);
+}
+
+
+/* ═══════════════════════════════════════════════
+   5. TEXT GLOW ON HOVER
+   ─────────────────────────────────────────────
+   Add .motion-glow to accent text elements.
+   Subtle text-shadow appears on hover.
+   ═══════════════════════════════════════════════ */
+
+.motion-glow {
+  transition: text-shadow var(--motion-base) ease;
+}
+
+.motion-glow:hover {
+  text-shadow: var(--glow-accent);
+}
+
+.motion-glow--gold {
+  transition: text-shadow var(--motion-base) ease;
+}
+
+.motion-glow--gold:hover {
+  text-shadow: var(--glow-gold);
+}
+
+
+/* ═══════════════════════════════════════════════
+   6. NAV ACTIVE UNDERLINE
+   ─────────────────────────────────────────────
+   Applied to nav tabs. The ::after underline
+   scales from center on active/hover.
+   ═══════════════════════════════════════════════ */
+
+.motion-underline {
+  position: relative;
+}
+
+.motion-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--color-accent);
+  box-shadow: var(--glow-accent);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform var(--motion-slow) ease;
+}
+
+.motion-underline:hover::after,
+.motion-underline[data-active='true']::after {
+  transform: scaleX(1);
+}
+
+
+/* ═══════════════════════════════════════════════
+   7. GOLD DIVIDER DRAW-IN
+   ─────────────────────────────────────────────
+   For DividerGoldRitual or any gold line.
+   Draws from center when parent gains .motion-visible.
+   ═══════════════════════════════════════════════ */
+
+.motion-gold-draw {
+  transform: scaleX(0);
+  transform-origin: center;
+}
+
+.motion-visible .motion-gold-draw,
+.motion-gold-draw.motion-visible {
+  animation: motion-scale-x var(--motion-reveal) ease-out forwards;
+}
+
+
+/* ═══════════════════════════════════════════════
+   8. TERMINAL TYPEWRITER REVEAL
+   ─────────────────────────────────────────────
+   Lines appear sequentially inside .motion-type.
+   Uses same --stagger variable approach.
+   ═══════════════════════════════════════════════ */
+
+.motion-type > * {
+  opacity: 0;
+}
+
+.motion-visible .motion-type > * {
+  animation: motion-line-fade var(--motion-base) ease-out forwards;
+  animation-delay: calc(var(--stagger, 0) * 150ms);
+}
+
+.motion-type > *:nth-child(1)  { --stagger: 0; }
+.motion-type > *:nth-child(2)  { --stagger: 1; }
+.motion-type > *:nth-child(3)  { --stagger: 2; }
+.motion-type > *:nth-child(4)  { --stagger: 3; }
+.motion-type > *:nth-child(5)  { --stagger: 4; }
+.motion-type > *:nth-child(6)  { --stagger: 5; }
+.motion-type > *:nth-child(7)  { --stagger: 6; }
+.motion-type > *:nth-child(8)  { --stagger: 7; }
+
+
+/* ═══════════════════════════════════════════════
+   9. THEME TOGGLE CROSSFADE
+   ─────────────────────────────────────────────
+   Two icons stacked. Active one fades out with
+   90° rotation, new one fades in from -90°.
+   ═══════════════════════════════════════════════ */
+
+.motion-theme-icon {
+  transition:
+    opacity var(--motion-base) ease,
+    transform var(--motion-base) ease;
+}
+
+.motion-theme-icon--out {
+  opacity: 0;
+  transform: rotate(90deg);
+}
+
+.motion-theme-icon--in {
+  opacity: 1;
+  transform: rotate(0deg);
+}
+
+
+/* ═══════════════════════════════════════════════
+   10. CARD ACCENT LINE GROW
+   ─────────────────────────────────────────────
+   For CardTopAccent: width grows on hover.
+   Apply .motion-accent-grow to the accent line
+   or the card container.
+   ═══════════════════════════════════════════════ */
+
+.motion-accent-grow {
+  transition: width var(--motion-slow) ease;
+  width: 40px;
+}
+
+.motion-accent-grow:hover,
+*:hover > .motion-accent-grow {
+  width: 60px;
+}
+
+
+/* ═══════════════════════════════════════════════
+   BONUS: GENERIC TRANSITIONS
+   ─────────────────────────────────────────────
+   Utility classes for common transition needs.
+   ═══════════════════════════════════════════════ */
+
+.motion-fade {
+  transition: opacity var(--motion-base) ease;
+}
+
+.motion-color {
+  transition:
+    color var(--motion-fast) ease,
+    background-color var(--motion-fast) ease;
+}
+
+.motion-all {
+  transition:
+    color var(--motion-base) ease,
+    background-color var(--motion-base) ease,
+    border-color var(--motion-base) ease,
+    box-shadow var(--motion-base) ease,
+    transform var(--motion-base) ease;
+}
+
+
+/* ═══════════════════════════════════════════════
+   PREFERS-REDUCED-MOTION
+   ─────────────────────────────────────────────
+   ALL motion disabled. Elements show in their
+   final state immediately.
+   ═══════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-reveal,
+  .motion-panel,
+  .motion-stagger > *,
+  .motion-type > *,
+  .motion-gold-draw {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+
+  .motion-border,
+  .motion-glow,
+  .motion-glow--gold,
+  .motion-underline::after,
+  .motion-accent-grow,
+  .motion-fade,
+  .motion-color,
+  .motion-all,
+  .motion-theme-icon {
+    transition: none !important;
+  }
+
+  .motion-underline[data-active='true']::after {
+    transform: scaleX(1) !important;
+    transition: none !important;
+  }
+}

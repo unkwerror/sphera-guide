@@ -1,0 +1,5 @@
+/* base.css — minimal, overridden by style.css */
+:root{--font-body:'Space Grotesk',system-ui,sans-serif;--font-display:'Space Mono','Courier New',monospace;--font-mono:'Space Mono','Courier New',monospace}
+html{-webkit-text-size-adjust:none;text-size-adjust:none;scroll-behavior:smooth}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0}

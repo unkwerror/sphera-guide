@@ -1,0 +1,31 @@
+/* ═══════════════════════════════════════════════════════════════
+   GLYPH SYSTEM — keyframes & utility classes
+   ─────────────────────────────────────────────────────────────
+   Imported globally via main.jsx. Provides animations used
+   by decorative components in src/components/glyphs/.
+   ═══════════════════════════════════════════════════════════════ */
+
+@keyframes ds-cursor-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@keyframes ds-pulse-subtle {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.glyph-cursor-blink {
+  animation: ds-cursor-blink 1.06s step-end infinite;
+}
+
+.glyph-pulse {
+  animation: ds-pulse-subtle 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glyph-cursor-blink,
+  .glyph-pulse {
+    animation: none !important;
+  }
+}
