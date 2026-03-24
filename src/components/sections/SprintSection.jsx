@@ -8,6 +8,7 @@ import {
   CardTopAccent, CardGlyphWatermark, SectionGhostNum,
   SigilBullet,
 } from '../glyphs';
+import GuideVideo from '../media/GuideVideo';
 
 
 const TIMELINE_STEPS = [
@@ -15,30 +16,30 @@ const TIMELINE_STEPS = [
     title: 'Старт спринта',
     marker: '01',
     items: [
-      'Планирование: выбрать задачи из бэклога',
-      'Оценить трудозатраты (в часах)',
-      'Назначить исполнителей на каждую задачу',
-      'Проверить, что у всех есть доступ к ресурсам',
+      'Разобрать бэклог и взять только реалистичный объём',
+      'Дробить задачи до 4-8 часов',
+      'Назначить исполнителей и критерии готовности',
+      'Зафиксировать сроки и зависимости',
     ],
   },
   {
     title: 'Середина',
     marker: '02',
     items: [
-      'Стендап: обновить статусы задач',
-      'Проверить, нет ли блокеров',
-      'Списать время (факт vs оценка)',
-      'Перекинуть задачи, если кто-то перегружен',
+      'Короткий стендап по карточкам',
+      'Вынести блокеры в комментарии',
+      'Сверить факт времени с оценкой',
+      'Перебалансировать нагрузку при перегрузе',
     ],
   },
   {
     title: 'Конец спринта',
     marker: '03',
     items: [
-      'Демо результатов (даже если не всё готово)',
-      'Ретро: что пошло не так, что улучшить',
-      'Перенести незакрытые задачи в следующий спринт',
-      'Обновить бэклог на следующую итерацию',
+      'Показать сделанное (даже промежуточный результат)',
+      'Сравнить план и факт по задачам',
+      'Зафиксировать, что тормозило команду',
+      'Перенести хвост осознанно, а не молча',
     ],
   },
 ];
@@ -59,11 +60,11 @@ const KANBAN_COLS = [
 ];
 
 const DONT_DO = [
-  'Менять задачи посреди спринта без обсуждения с командой',
-  'Оставлять спринт без демо — даже незаконченная работа показывается',
-  'Создавать задачи без оценки и срока',
-  'Игнорировать блокеры — если застрял, пиши сразу',
-  'Назначать себе 40 часов работы в двухнедельный спринт',
+  'Пихать в спринт весь бэклог сразу',
+  'Оставлять задачи без исполнителя или срока',
+  'Держать монозадачи на 20+ часов',
+  'Обновлять статусы раз в неделю вместо ежедневно',
+  'Молчать про блокер до последнего дня',
 ];
 
 const STANDUP_DO = [
@@ -74,21 +75,49 @@ const STANDUP_DO = [
 
 const STANDUP_DONT = [
   'Пересказывать всю историю проекта',
-  'Обсуждать архитектурные решения (это отдельная встреча)',
+  'Говорить по памяти без привязки к карточкам',
   'Молчать, если застрял',
 ];
 
 const SPRINT_GUIDE_STEPS = [
-  'Открой нужное пространство и перейди в раздел «Бэклог»',
-  'В правом верхнем углу панели спринтов нажми «Добавить спринт +»',
-  'В выпадающем меню нажми «Создать спринт»',
-  'Заполни поля: Пространство, Название (до 125 символов), Статус (Планируемый)',
-  'Выбери уровень иерархии: Спринт или Суперспринт',
-  'Укажи Дату начала и Дату завершения',
-  'Нажми «Сохранить» — спринт появится в панели сверху',
-  'Чтобы добавить задачу в спринт: открой карточку задачи → поле «Спринт» справа → выбери созданный спринт из списка',
-  'Или в бэклоге: отметь задачи галочками → нажми «В спринт» → выбери спринт',
+  'Открой пространство и перейди в раздел «Бэклог».',
+  'Нажми «Добавить спринт +» -> «Создать спринт».',
+  'Заполни название, статус и даты начала/конца.',
+  'Выбери уровень: спринт или суперспринт.',
+  'Сохрани: новый спринт появится в панели сверху.',
+  'Добавляй задачи через поле «Спринт» в карточке.',
+  'Либо в бэклоге: отметь задачи галочками и отправь «В спринт».',
+  'Перед стартом проверь, что у каждой задачи есть владелец и срок.',
+  'Не перегружай цикл: лучше меньше, но закрыто до конца.',
 ];
+
+const SPRINT_DAY_ONE_STEPS = [
+  'Не пихай туда весь бэклог.',
+  'Не бери мутные задачи.',
+  'Не оставляй задачи без исполнителя.',
+  'Не тащи гигантские карточки.',
+  'Проверь, что каждая задача проходит SMART.',
+];
+
+const SPRINT_MID_STEPS = [
+  'Проверь, что задачи реально двигаются.',
+  'Найди зависшие карточки.',
+  'Подними блокеры наружу.',
+  'Не жди конца цикла, чтобы признать, что что-то не работает.',
+  'Если план разваливается - лучше пересобрать его сейчас.',
+];
+
+const STANDUP_BY_BOARD_STEPS = [
+  'Открой доску.',
+  'Смотри на реальные карточки, а не в потолок.',
+  'Скажи, что закончил.',
+  'Скажи, что делаешь сейчас.',
+  'Скажи, что тебя блокирует.',
+  'Не пересказывай жизнь проекта с сотворения мира.',
+  'Если карточка не совпадает с реальностью — сначала исправь карточку, потом говори.',
+];
+
+const SPRINT_VIDEO = '/media/sfera/sozdanyesprinta.webm';
 
 const STATUS_MAP = { active: 'active', warning: 'warning', idle: 'idle', done: 'done' };
 const STATUS_LABELS = { active: 'В работе', warning: 'Ревью', idle: 'Бэклог', done: 'Готово' };
@@ -105,13 +134,13 @@ export default function SprintSection() {
 
           <div className="ds-section-header">
             <SectionGhostNum num="05" />
-            <h2 className="ds-section-title">Ритм работы: спринт и канбан</h2>
+            <h2 className="ds-section-title">Как рекомендовано строить спринт</h2>
           </div>
 
           <p className="sp-intro">
-            Двухнедельный спринт — лучший компромисс для учебных проектов.
-            Достаточно длинный, чтобы сделать что-то реальное.
-            Достаточно короткий, чтобы не потерять фокус. Вот как это работает.
+            Это не официальный регламент и не «единственно правильный Scrum».
+            Это рабочая схема для учебного проекта: двухнедельный цикл,
+            короткие синки и честные статусы без самообмана.
           </p>
 
           <div className="sp-divider">
@@ -156,10 +185,6 @@ export default function SprintSection() {
                   <StatusDot status="active" size={6} />
                   <BracketOrnament text=">>" color="var(--color-accent)" />
                   <span className="sp-kanban-title">Канбан · Спринт 2</span>
-                </div>
-                <div className="sp-kanban-toolbar">
-                  <div className="sp-kanban-select">Спринт 1</div>
-                  <div className="sp-kanban-select">Группировать по</div>
                 </div>
                 <div className="sp-kanban">
                   {KANBAN_COLS.map((col) => (
@@ -209,7 +234,8 @@ export default function SprintSection() {
                 <CardTopAccent color="var(--color-accent-gold)" width={40} />
                 <h3 className="sp-standup-title">Стендап</h3>
                 <p className="sp-standup-desc">
-                  5 минут в начале рабочего дня. Не дискуссия, не планёрка. Три вопроса — и к работе.
+                  5-10 минут в начале дня. Смотрим на доску и говорим по карточкам:
+                  что сделал, что делаешь, что блокирует.
                 </p>
 
                 <div className="sp-standup-grid">
@@ -242,12 +268,20 @@ export default function SprintSection() {
             </PanelCorners>
           </div>
 
+          <GuideVideo
+            className="sp-video"
+            src={SPRINT_VIDEO}
+            badge="sprint / webm"
+            title="Создание спринта и перенос задач"
+            caption="Сценарий вживую: бэклог -> новый спринт -> перенос карточек. Берём только реалистичный объём."
+          />
+
           {/* ── SPRINT GUIDE ── */}
           <div data-reveal className="sp-guide-wrap motion-reveal">
             <PanelCorners size={16} color="var(--color-border-strong)">
               <div className="sp-guide">
                 <CardTopAccent color="var(--color-accent)" width={48} />
-                <h3 className="sp-guide-title">Как создать спринт в Сфере</h3>
+                <h3 className="sp-guide-title">Как создать спринт в Сфере (рабочий сценарий)</h3>
                 <ul className="sp-guide-list">
                   {SPRINT_GUIDE_STEPS.map((text, i) => (
                     <li key={i} className="sp-guide-step">
@@ -261,9 +295,65 @@ export default function SprintSection() {
             </PanelCorners>
           </div>
 
+          <div data-reveal className="sp-mini-guides motion-reveal">
+            <div className="sp-mini-guide">
+              <PanelCorners size={14} color="var(--color-border-strong)">
+                <div className="sp-guide">
+                  <CardTopAccent color="var(--color-accent-gold)" width={40} />
+                  <h3 className="sp-guide-title">Как не запороть спринт в первый день</h3>
+                  <ul className="sp-guide-list">
+                    {SPRINT_DAY_ONE_STEPS.map((text, i) => (
+                      <li key={text} className="sp-guide-step">
+                        <span className="sp-guide-num">{String(i + 1).padStart(2, '0')}</span>
+                        <SigilDiamond size={8} color="var(--color-accent)" />
+                        <span className="sp-guide-text">{text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </PanelCorners>
+            </div>
+
+            <div className="sp-mini-guide">
+              <PanelCorners size={14} color="var(--color-border-strong)">
+                <div className="sp-guide">
+                  <CardTopAccent color="var(--color-accent-gold)" width={40} />
+                  <h3 className="sp-guide-title">Что делать в середине спринта</h3>
+                  <ul className="sp-guide-list">
+                    {SPRINT_MID_STEPS.map((text, i) => (
+                      <li key={text} className="sp-guide-step">
+                        <span className="sp-guide-num">{String(i + 1).padStart(2, '0')}</span>
+                        <SigilDiamond size={8} color="var(--color-accent)" />
+                        <span className="sp-guide-text">{text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </PanelCorners>
+            </div>
+
+            <div className="sp-mini-guide sp-mini-guide--wide">
+              <PanelCorners size={14} color="var(--color-border-strong)">
+                <div className="sp-guide">
+                  <CardTopAccent color="var(--color-accent)" width={48} />
+                  <h3 className="sp-guide-title">Как вести стендап по доске, а не по памяти</h3>
+                  <ul className="sp-guide-list">
+                    {STANDUP_BY_BOARD_STEPS.map((text, i) => (
+                      <li key={text} className="sp-guide-step">
+                        <span className="sp-guide-num">{String(i + 1).padStart(2, '0')}</span>
+                        <SigilDiamond size={8} color="var(--color-accent)" />
+                        <span className="sp-guide-text">{text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </PanelCorners>
+            </div>
+          </div>
+
           <div data-reveal className="sp-guide-tip motion-reveal">
             <p className="sp-guide-tip-text">
-              Сначала чисти бэклог, потом создавай спринт. Если делать наоборот, в спринт улетает слишком много мусора.
+              Сначала чистим бэклог, потом запускаем спринт. Иначе в цикл улетает шум, а не работа.
             </p>
           </div>
 
@@ -272,7 +362,7 @@ export default function SprintSection() {
             <DividerDashedTerminal />
             <blockquote className="sp-quote-text">
               <SigilDiamond size={10} color="var(--color-accent-gold)" />
-              <span>Спринт — это не бюрократия. Это способ договориться.</span>
+              <span>Спринт — это договор команды на ближайшие две недели.</span>
             </blockquote>
           </div>
 
@@ -570,6 +660,11 @@ const CSS = `
 
   .sp-standup-wrap { margin-bottom: 3rem; max-width: 800px; }
 
+  .sp-video {
+    max-width: 800px;
+    margin-bottom: 1.25rem;
+  }
+
   .sp-standup {
     position: relative;
     background: var(--color-surface);
@@ -694,6 +789,18 @@ const CSS = `
     line-height: 1.55;
   }
 
+  .sp-mini-guides {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    max-width: 1100px;
+    margin-bottom: 1.5rem;
+  }
+
+  .sp-mini-guide--wide {
+    grid-column: span 2;
+  }
+
   .sp-guide-tip {
     margin-bottom: 2rem;
     max-width: 800px;
@@ -756,6 +863,13 @@ const CSS = `
     .sp-block-item { padding: 0.75rem 1rem; }
     .sp-guide { padding: 1.25rem 1.25rem 1.5rem; }
     .sp-guide-title { font-size: 0.88rem; }
+    .sp-video { margin-bottom: 1rem; }
+    .sp-mini-guides {
+      grid-template-columns: 1fr;
+    }
+    .sp-mini-guide--wide {
+      grid-column: span 1;
+    }
     .sp-timeline-title { font-size: 0.92rem; }
     .sp-timeline-item,
     .sp-guide-text,

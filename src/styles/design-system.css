@@ -152,6 +152,84 @@
 }
 
 
+/* ── GUIDE VIDEO CARD ── */
+
+.ds-video-wrap {
+  margin: 0 0 2rem;
+}
+
+.ds-video-card {
+  position: relative;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  padding: 0.95rem;
+  overflow: hidden;
+}
+
+.ds-video-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.72rem;
+}
+
+.ds-video-title {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+.ds-video-frame {
+  border: 1px solid var(--color-border);
+  background: #050709;
+  padding: 0.35rem;
+}
+
+.ds-video-player {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  background: #000;
+}
+
+.ds-video-caption {
+  margin: 0.65rem 0 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.ds-video-caption > svg {
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+@media (max-width: 640px) {
+  .ds-video-card {
+    padding: 0.78rem;
+  }
+
+  .ds-video-title {
+    font-size: 0.69rem;
+    letter-spacing: 0.06em;
+  }
+
+  .ds-video-caption {
+    font-size: 0.8rem;
+    line-height: 1.55;
+  }
+}
+
+
 /* ── GOLD RITUAL MARKER ──
    Thin gold line on first child. Signals start of a ritual sequence. */
 

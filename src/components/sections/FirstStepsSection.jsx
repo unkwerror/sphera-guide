@@ -9,6 +9,7 @@ import {
   CardTopAccent, CardGlyphWatermark, SectionGhostNum,
 } from '../glyphs';
 import AsciiCharm from '../ascii/AsciiCharm';
+import GuideVideo from '../media/GuideVideo';
 
 const MOCK_NAV = ['Задачи', 'Бэклог', 'Канбан', 'Структура задач'];
 const MOCK_FILTERS = [
@@ -119,11 +120,22 @@ const STATUS_LABELS = {
 };
 
 const ANNOTATIONS = [
-  { num: 1, title: 'Вкладка «Активные»', desc: 'Твой ежедневный экран. Здесь видны задачи, которые сейчас в работе. Начинай день с неё.' },
-  { num: 2, title: 'Ключ задачи', desc: 'ROB-001, ROB-002… — уникальный ID. Используй его в коммитах и при обсуждении с командой.' },
-  { num: 3, title: 'Приоритет и статус', desc: 'Обновляй статус каждый день. Приоритет задаёт руководитель — не игнорируй «Высокий».' },
-  { num: 4, title: 'Создать задачу', desc: 'Появилась новая работа? Не держи в голове — создай задачу и назначь исполнителя.' },
+  { num: 1, title: 'Стартуй с «Активные»', desc: 'Это твоя ежедневная точка входа. Если не знаешь, за что браться прямо сейчас, смотри сюда.' },
+  { num: 2, title: 'Смотри на ключ задачи', desc: 'ROB-001, ROB-002 и т.д. Это ID карточки для обсуждений, коммитов и стендапа без путаницы.' },
+  { num: 3, title: 'Статус и приоритет', desc: 'Статус должен совпадать с реальностью, а не с надеждой. Иначе команда планирует в слепую.' },
+  { num: 4, title: 'Кнопка «Создать задачу»', desc: 'Новая работа появилась - сразу в карточку. Если не записал, через день никто не вспомнит детали.' },
 ];
+
+const FIRST_DAY_GUIDE = [
+  'Найди своё пространство.',
+  'Открой «Мои задачи».',
+  'Переключись на «Активные».',
+  'Если задач нет - создай первую нормальную карточку.',
+  'Если задачи есть - проверь статус, срок и описание.',
+  'Не лезь сразу в фильтры и структуры: сначала база.',
+];
+
+const FIRST_DAY_VIDEO = '/media/sfera/chtodelatvpervyden.webm';
 
 
 function CalloutMarker({ num }) {
@@ -149,12 +161,13 @@ export default function FirstStepsSection() {
           {/* ── SECTION HEADER ── */}
           <div className="ds-section-header">
             <SectionGhostNum num="02" />
-            <h2 className="ds-section-title">Что делать первым</h2>
+            <h2 className="ds-section-title">Что делать в первый день</h2>
           </div>
 
           <p className="fs-intro">
-            Ты открыл Sfera.Tasks и видишь пустой экран. Без паники.
-            Вот что нужно сделать в первые 10 минут — и что смотреть каждый день.
+            Открыл Сферу и залип на первом экране? Нормально.
+            Вот короткий маршрут на первые 10 минут: где искать свои задачи,
+            как собрать рабочий список и когда уже пора создавать карточку.
           </p>
 
           <div className="ds-ascii-strip ds-ascii-strip--compact">
@@ -164,6 +177,27 @@ export default function FirstStepsSection() {
 
           <div className="fs-divider">
             <DividerNodeLine />
+          </div>
+
+          <div data-reveal className="fs-guide-wrap motion-panel">
+            <PanelCorners size={14} color="var(--color-border-strong)">
+              <div className="fs-guide">
+                <CardTopAccent color="var(--color-accent)" width={44} />
+                <div className="fs-guide-head">
+                  <MonoBadge variant="accent">гайд</MonoBadge>
+                  <h3 className="fs-guide-title">Как не потеряться в Сфере в первый день</h3>
+                </div>
+                <ul className="fs-guide-list">
+                  {FIRST_DAY_GUIDE.map((step, i) => (
+                    <li key={step} className="fs-guide-step">
+                      <span className="fs-guide-num">{String(i + 1).padStart(2, '0')}</span>
+                      <SigilDiamond size={8} color="var(--color-accent)" />
+                      <span className="fs-guide-text">{step}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </PanelCorners>
           </div>
 
           {/* ── MOCK SFERA INTERFACE ── */}
@@ -260,7 +294,7 @@ export default function FirstStepsSection() {
                       {visibleTasks.length === 0 && (
                         <tr>
                           <td colSpan={7} className="fs-mock-empty">
-                            В этом срезе пока нет задач. Переключись на «Отслеживаемые» или создай новую задачу.
+                            Здесь пока пусто. Проверь «Планируемые» и «Отслеживаемые», а если задачи ещё нет - создай её сразу.
                           </td>
                         </tr>
                       )}
@@ -302,6 +336,14 @@ export default function FirstStepsSection() {
             </div>
           </div>
 
+          <GuideVideo
+            className="fs-video"
+            src={FIRST_DAY_VIDEO}
+            badge="first day / webm"
+            title="Первые 10 минут в Сфере"
+            caption="Маршрут тот же, что в гайде: зайди в «Мои задачи», проверь «Активные» и быстро оцени состояние карточек."
+          />
+
         </div>
       </section>
     </>
@@ -328,6 +370,80 @@ const CSS = `
   .fs-divider {
     margin-bottom: 3rem;
     max-width: 600px;
+  }
+
+  .fs-guide-wrap {
+    margin-bottom: 2rem;
+    max-width: 860px;
+  }
+
+  .fs-video {
+    max-width: 980px;
+    margin-top: 1.4rem;
+    margin-bottom: 0;
+  }
+
+  .fs-guide {
+    position: relative;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 1.15rem 1.2rem 1.25rem;
+    overflow: hidden;
+  }
+
+  .fs-guide-head {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 0.9rem;
+    flex-wrap: wrap;
+  }
+
+  .fs-guide-title {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text);
+  }
+
+  .fs-guide-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.52rem;
+  }
+
+  .fs-guide-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .fs-guide-num {
+    min-width: 1.45rem;
+    padding-top: 2px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--color-text-tertiary);
+  }
+
+  .fs-guide-step > svg {
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  .fs-guide-text {
+    font-family: var(--font-body);
+    font-size: 0.84rem;
+    color: var(--color-text-secondary);
+    line-height: 1.52;
   }
 
   /* ── MOCK WRAPPER ── */
@@ -721,6 +837,20 @@ const CSS = `
   }
 
   @media (max-width: 640px) {
+    .fs-video {
+      margin-top: 1.05rem;
+    }
+    .fs-guide {
+      padding: 1rem 0.95rem 1.05rem;
+    }
+    .fs-guide-title {
+      font-size: 0.76rem;
+      line-height: 1.4;
+    }
+    .fs-guide-text {
+      font-size: 0.84rem;
+      line-height: 1.55;
+    }
     .fs-mock-nav {
       padding: 0.75rem 1rem;
       gap: 0.65rem;

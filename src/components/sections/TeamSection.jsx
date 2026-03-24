@@ -14,32 +14,32 @@ const ROLES = [
   {
     title: 'Team Lead',
     badge: 'TL',
-    desc: 'Ведёт проект, распределяет задачи, следит за спринтами. Решает конфликты и блокеры. В Сфере: создаёт эпики, назначает приоритеты, контролирует дедлайны.',
+    desc: 'Держит ритм проекта: бэклог, приоритеты, перегруз и блокеры. В Сфере следит, чтобы у задач были владелец, срок и статус.',
   },
   {
     title: 'Backend / Systems',
     badge: 'BE',
-    desc: 'Пишет серверную логику, API, базы данных. В Сфере: задачи по эндпоинтам, миграциям, интеграциям. Оценивает время на инфраструктуру.',
+    desc: 'Отвечает за API, данные и инфраструктуру. В Сфере ведёт карточки по эндпоинтам, миграциям и интеграциям с честной оценкой по времени.',
   },
   {
     title: 'Frontend / UI',
     badge: 'FE',
-    desc: 'Интерфейс, компоненты, визуал. В Сфере: задачи по экранам, формам, адаптивности. Связка с дизайн-системой.',
+    desc: 'Собирает интерфейсы и UX-сценарии. В Сфере фиксирует задачи по экранам, состояниям, адаптиву и интеграции с API.',
   },
   {
     title: 'ML / CV / AI',
     badge: 'ML',
-    desc: 'Модели, обучение, данные. В Сфере: задачи по датасетам, обучению, метрикам. Подзадачи на эксперименты.',
+    desc: 'Ведёт датасеты, эксперименты и метрики. В Сфере раскладывает работу на шаги: подготовка данных, baseline, валидация, выводы.',
   },
   {
     title: 'Robotics / ROS',
     badge: 'ROS',
-    desc: 'Навигация, контроллеры, датчики, железо. В Сфере: задачи по launch-файлам, калибровке, тестам на полигоне.',
+    desc: 'Отвечает за железо, ROS-узлы и тесты на стенде/полигоне. В Сфере ведёт задачи по калибровке, интеграции сенсоров и навигации.',
   },
   {
     title: 'QA / Docs',
     badge: 'QA',
-    desc: 'Тестирование и документация. В Сфере: задачи на тест-кейсы, Swagger-спеки, README. Часто совмещается с другой ролью.',
+    desc: 'Фиксирует качество и знания команды: тесты, регрессы, документация. В Сфере закрывает карточки по проверкам, багам и артефактам.',
   },
 ];
 
@@ -82,6 +82,24 @@ const ANTI_PATTERNS = [
   },
 ];
 
+const ROLE_GUIDE_STEPS = [
+  'В текущей версии Сферы роли участникам внутри команды не назначаются — спорное продуктовое решение.',
+  'Распределяйте роли вручную на старте спринта и фиксируйте это в задачах.',
+  'У каждой роли должен быть свой класс карточек и зона ответственности.',
+  'Если «все делают всё», очень быстро выходит «никто не отвечает».',
+  'Чёткое распределение ролей — базовый фактор успешной проектной работы.',
+];
+
+const ANTI_GUIDE_STEPS = [
+  'Не обновляй статусы.',
+  'Не назначай исполнителей.',
+  'Держи всё в чате.',
+  'Считай, что одна гигантская задача — это норма.',
+  'Игнорируй блокеры.',
+  'Вспоминай про Сферу за день до встречи с куратором.',
+  'Удивляйся, почему всё развалилось.',
+];
+
 
 export default function TeamSection() {
   const containerRef = useScrollRevealAll({ threshold: 0.08 });
@@ -94,13 +112,13 @@ export default function TeamSection() {
 
           <div className="ds-section-header">
             <SectionGhostNum num="07" />
-            <h2 className="ds-section-title">Команда и ответственность</h2>
+            <h2 className="ds-section-title">Роли и ответственность</h2>
           </div>
 
           <p className="tm-intro">
-            В проектной работе нет «кто-нибудь сделает». Есть конкретные роли,
-            конкретные зоны ответственности и конкретные задачи в Сфере.
-            Вот как это устроено.
+            Если один человек тащит весь проект - это не команда, а технический долг с эмоциями.
+            Роли нужны не для красоты в чате, а чтобы в Сфере было видно,
+            кто двигает какой класс задач и где зависает поток.
           </p>
 
           <div className="tm-divider">
@@ -127,14 +145,35 @@ export default function TeamSection() {
             </div>
           </div>
 
+          <div data-reveal className="tm-guide-wrap motion-panel">
+            <PanelCorners size={14} color="var(--color-border-strong)">
+              <div className="tm-guide">
+                <CardTopAccent color="var(--color-accent)" width={42} />
+                <div className="tm-guide-head">
+                  <MonoBadge variant="accent">гайд</MonoBadge>
+                  <h3 className="tm-guide-title">Как не превратить роли в декорацию</h3>
+                </div>
+                <ul className="tm-guide-list">
+                  {ROLE_GUIDE_STEPS.map((step, i) => (
+                    <li key={step} className="tm-guide-step">
+                      <span className="tm-guide-num">{String(i + 1).padStart(2, '0')}</span>
+                      <SigilDiamond size={8} color="var(--color-accent)" />
+                      <span className="tm-guide-text">{step}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </PanelCorners>
+          </div>
+
           {/* ── ANTI-PATTERNS ── */}
           <div data-reveal className="tm-anti motion-panel">
             <div className="tm-anti-header">
               <StatusDot status="error" size={8} />
-              <span className="tm-anti-title">Что ломает проект</span>
+              <span className="tm-anti-title">Что ломает учебный проект</span>
             </div>
             <p className="tm-anti-desc">
-              Шесть типичных антипаттернов. Если узнаёшь хотя бы два — проект уже в зоне риска.
+              Шесть типичных антипаттернов. Если узнаёшь хотя бы два - пора чинить процесс сегодня, а не перед дедлайном.
             </p>
 
             <div className="tm-anti-grid">
@@ -167,6 +206,27 @@ export default function TeamSection() {
                 </div>
               ))}
             </div>
+
+            <div className="tm-anti-guide">
+              <PanelCorners size={14} color="var(--color-border-strong)">
+                <div className="tm-anti-guide-inner">
+                  <CardTopAccent color="var(--color-error)" width={40} />
+                  <div className="tm-anti-guide-head">
+                    <MonoBadge variant="ghost">anti-guide</MonoBadge>
+                    <h3 className="tm-anti-guide-title">Как быстро угробить проект</h3>
+                  </div>
+                  <ul className="tm-anti-guide-list">
+                    {ANTI_GUIDE_STEPS.map((step, i) => (
+                      <li key={step} className="tm-anti-guide-step">
+                        <span className="tm-anti-guide-num">{String(i + 1).padStart(2, '0')}</span>
+                        <SigilBullet type="cross" size={10} color="var(--color-error)" />
+                        <span className="tm-anti-guide-text">{step}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </PanelCorners>
+            </div>
           </div>
 
           {/* ── CLOSING ── */}
@@ -175,7 +235,7 @@ export default function TeamSection() {
             <blockquote className="tm-closing-text">
               <SigilDiamond size={10} color="var(--color-accent-gold)" />
               <span>
-                Если команда не хочет видеть реальную картину проекта, никакая система не спасёт.
+                Если команда не готова видеть реальную картину проекта, никакой таск-трекер не спасёт.
               </span>
             </blockquote>
           </div>
@@ -270,6 +330,74 @@ const CSS = `
     margin: 0;
   }
 
+  .tm-guide-wrap {
+    margin: -2rem 0 3rem;
+    max-width: 920px;
+  }
+
+  .tm-guide {
+    position: relative;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 1.05rem 1.1rem 1.15rem;
+    overflow: hidden;
+  }
+
+  .tm-guide-head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+  }
+
+  .tm-guide-title {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text);
+  }
+
+  .tm-guide-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .tm-guide-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .tm-guide-num {
+    min-width: 1.45rem;
+    padding-top: 2px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--color-text-tertiary);
+  }
+
+  .tm-guide-step > svg {
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  .tm-guide-text {
+    font-family: var(--font-body);
+    font-size: 0.84rem;
+    color: var(--color-text-secondary);
+    line-height: 1.52;
+  }
+
   /* ── ANTI-PATTERNS ── */
 
   .tm-anti { margin-bottom: 3rem; }
@@ -303,6 +431,7 @@ const CSS = `
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1.25rem;
+    margin-bottom: 1.25rem;
   }
 
   .tm-anti-card-inner {
@@ -360,6 +489,68 @@ const CSS = `
 
   .tm-anti-field-text--fix { color: var(--color-accent); }
 
+  .tm-anti-guide-inner {
+    position: relative;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 1rem 1rem 1.1rem;
+  }
+
+  .tm-anti-guide-head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+  }
+
+  .tm-anti-guide-title {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-error);
+  }
+
+  .tm-anti-guide-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .tm-anti-guide-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .tm-anti-guide-num {
+    min-width: 1.45rem;
+    padding-top: 2px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--color-text-tertiary);
+  }
+
+  .tm-anti-guide-step > svg {
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  .tm-anti-guide-text {
+    font-family: var(--font-body);
+    font-size: 0.84rem;
+    color: var(--color-text-secondary);
+    line-height: 1.52;
+  }
+
   /* ── CLOSING ── */
 
   .tm-closing { margin-top: 3rem; max-width: 700px; }
@@ -401,11 +592,36 @@ const CSS = `
       font-size: 0.88rem;
       line-height: 1.6;
     }
+    .tm-guide-wrap {
+      margin: -1.2rem 0 2rem;
+    }
+    .tm-guide {
+      padding: 0.92rem 0.9rem 1rem;
+    }
+    .tm-guide-title {
+      font-size: 0.74rem;
+      line-height: 1.4;
+    }
+    .tm-guide-text {
+      font-size: 0.84rem;
+      line-height: 1.55;
+    }
     .tm-anti-card-inner { padding: 1.25rem; }
     .tm-anti-card-title { font-size: 0.86rem; }
     .tm-anti-field-text {
       font-size: 0.84rem;
       line-height: 1.58;
+    }
+    .tm-anti-guide-inner {
+      padding: 0.92rem 0.9rem 1rem;
+    }
+    .tm-anti-guide-title {
+      font-size: 0.75rem;
+      line-height: 1.4;
+    }
+    .tm-anti-guide-text {
+      font-size: 0.84rem;
+      line-height: 1.55;
     }
   }
 `;

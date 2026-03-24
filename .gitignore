@@ -8,10 +8,12 @@ node_modules/
 .yarn/unplugged/
 .yarn/install-state.gz
 
-# Build output
+# Build output (Vite + Next.js)
 dist/
 build/
 coverage/
+.next/
+out/
 .vite/
 *.tsbuildinfo
 next-env.d.ts
@@ -21,6 +23,7 @@ next-env.d.ts
 .env.*
 !.env.example
 *.local
+*.pem
 
 # Logs
 logs/
@@ -72,3 +75,4 @@ CURSOR_MAGIC_MCP_PROMPT.md
 CURSOR_PROJECT_DUMP.md
 iir_v2_spec.md
 Проекты ИИР весна 2026 - Лист1.csv
+content/

@@ -160,6 +160,15 @@ const PROJECTS = {
   },
 };
 
+const EXAMPLES_HELPER_STEPS = [
+  'Не копируй примеры слово в слово.',
+  'Смотри на логику декомпозиции.',
+  'Сначала выделяй эпик.',
+  'Потом задачи.',
+  'Потом подзадачи.',
+  'Если так не раскладывается — команда ещё не поняла, что делает.',
+];
+
 
 function TreeView({ project }) {
   return (
@@ -232,8 +241,9 @@ export default function ExamplesSection() {
           </div>
 
           <p className="ex-intro">
-            Каждый проект разбивается на эпики, задачи и подзадачи.
-            Вот как это выглядит в четырёх типичных направлениях ИИР.
+            Не копируй эти карточки слово в слово.
+            Смотри на логику: идея - эпик - задачи - подзадачи.
+            Если такая цепочка не собирается, проект пока не декомпозирован.
           </p>
 
           <div className="ex-divider">
@@ -266,14 +276,35 @@ export default function ExamplesSection() {
             </div>
           </div>
 
+          <div data-reveal className="ex-guide-wrap motion-panel">
+            <PanelCorners size={14} color="var(--color-border-strong)">
+              <div className="ex-guide">
+                <CardTopAccent color="var(--color-accent)" width={44} />
+                <div className="ex-guide-head">
+                  <MonoBadge variant="accent">гайд</MonoBadge>
+                  <h3 className="ex-guide-title">Как пользоваться примерами ниже</h3>
+                </div>
+                <ul className="ex-guide-list">
+                  {EXAMPLES_HELPER_STEPS.map((step, i) => (
+                    <li key={step} className="ex-guide-step">
+                      <span className="ex-guide-num">{String(i + 1).padStart(2, '0')}</span>
+                      <SigilDiamond size={8} color="var(--color-accent)" />
+                      <span className="ex-guide-text">{step}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </PanelCorners>
+          </div>
+
           {/* ── CLOSING ── */}
           <div data-reveal className="ex-closing motion-reveal">
             <DividerDashedTerminal />
             <blockquote className="ex-closing-text">
               <SigilDiamond size={10} color="var(--color-accent-gold)" />
               <span>
-                Если проект нельзя разложить на эпики, задачи и подзадачи —
-                значит команда ещё сама не поняла, из чего он состоит.
+                Если проект нельзя разложить на эпики, задачи и подзадачи,
+                команда ещё не поняла, что именно она строит.
               </span>
             </blockquote>
           </div>
@@ -312,6 +343,74 @@ const CSS = `
   /* ── TABS ── */
 
   .ex-tabs-wrap { margin-bottom: 2rem; }
+
+  .ex-guide-wrap {
+    margin-bottom: 2rem;
+    max-width: 900px;
+  }
+
+  .ex-guide {
+    position: relative;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 1.15rem 1.2rem 1.25rem;
+    overflow: hidden;
+  }
+
+  .ex-guide-head {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.8rem;
+  }
+
+  .ex-guide-title {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text);
+  }
+
+  .ex-guide-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .ex-guide-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .ex-guide-num {
+    min-width: 1.45rem;
+    padding-top: 2px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--color-text-tertiary);
+  }
+
+  .ex-guide-step > svg {
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  .ex-guide-text {
+    font-family: var(--font-body);
+    font-size: 0.84rem;
+    color: var(--color-text-secondary);
+    line-height: 1.55;
+  }
 
   .ex-tabs {
     display: flex;
@@ -505,6 +604,17 @@ const CSS = `
       background: color-mix(in srgb, var(--color-accent) 10%, var(--color-surface));
     }
     .ex-panel-inner { padding: 1rem; }
+    .ex-guide {
+      padding: 1rem 0.95rem 1.05rem;
+    }
+    .ex-guide-title {
+      font-size: 0.75rem;
+      line-height: 1.4;
+    }
+    .ex-guide-text {
+      font-size: 0.84rem;
+      line-height: 1.55;
+    }
     .ex-tree-task { padding-left: 20px; }
     .ex-tree-subtask { padding-left: 40px; }
     .ex-tree-vline--1 { left: 12px; }

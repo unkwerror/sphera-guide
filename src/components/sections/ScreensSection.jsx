@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { useScrollRevealAll } from '../../hooks/useScrollReveal';
 import {
   SigilDiamond, SigilHexNode, SigilScan,
-  DividerNodeLine, DividerCircuitTrace, DividerDashedTerminal,
+  DividerNodeLine, DividerDashedTerminal,
   PanelCorners,
   StatusDot, BracketOrnament,
   MonoBadge, StatusBadge,
   CardTopAccent, CardGlyphWatermark, SectionGhostNum,
 } from '../glyphs';
 import AsciiCharm from '../ascii/AsciiCharm';
+import GuideVideo from '../media/GuideVideo';
 
 
 const TABS = [
@@ -21,21 +22,128 @@ const TABS = [
 ];
 
 const TAB_DESCRIPTIONS = {
-  tasks:     'Это личный рабочий экран для ежедневного контроля. Открывай его каждое утро — и ты всегда знаешь, что делать.',
-  backlog:   'Это очередь работы. Здесь лежит всё, что запланировано, но ещё не попало в спринт.',
-  kanban:    'Это экран потока. Видно, что в работе, что застряло, и где bottleneck.',
-  structure: 'Это экран иерархии. Эпик → задача → подзадача. Помогает понять, как устроен проект.',
-  time:      'Это экран для сравнения оценки и факта. Видно, кто сколько времени потратил и где перерасход.',
-  filters:   'Это инструмент точечного поиска. QL-запросы позволяют найти что угодно за секунды.',
+  tasks:     'Личный экран на каждый день: что делаю сейчас, что горит, что блокирует. Не управляй отсюда всем проектом.',
+  backlog:   'Очередь работы перед спринтом. Здесь выбирают, что брать дальше. Не превращай бэклог в склад вечных задач.',
+  kanban:    'Канбан показывает реальное движение карточек по статусам. Если статус не обновляется, доска перестаёт быть правдой.',
+  structure: 'Иерархия проекта: эпик -> задача -> подзадача. Нужна, когда проект уже не помещается в один плоский список.',
+  time:      'План vs факт по трудозатратам. Это про честную оценку объема, а не про поиск виноватых.',
+  filters:   'Точечный поиск по QL. Спасает, когда задач много и руками листать уже бессмысленно.',
 };
 
 const TAB_META = {
-  tasks: ['ежедневный обзор', '5 задач в списке', 'фокус: sprint 2'],
-  backlog: ['очередь работы', '2 спринта', '4 элемента в бэклоге'],
-  kanban: ['поток команды', '3 колонки', 'карточки по статусам'],
-  structure: ['иерархия проекта', '9 узлов', 'финальный узел: ROB-012'],
+  tasks: ['ежедневный вход', 'личный список', 'обновляй статус каждый день'],
+  backlog: ['очередь перед спринтом', 'планируй осознанно', 'не складывай мусор'],
+  kanban: ['канбан доска', '3 колонки', '7 карточек в текущем срезе'],
+  structure: ['каркас проекта', '9 узлов', 'финальный узел: ROB-012'],
   time: ['план vs факт', '4 задачи', 'контроль перерасхода'],
-  filters: ['точечный поиск', 'ql-запрос активен', '2 результата'],
+  filters: ['точечная выборка', 'ql-запрос активен', '2 задачи в срезе'],
+};
+
+const SCREEN_GUIDES = {
+  tasks: {
+    title: 'Как использовать экран «Мои задачи»',
+    steps: [
+      'Открывай его утром первым делом.',
+      'Смотри вкладку с активными задачами.',
+      'Проверяй дедлайны и статусы.',
+      'Если задача уже делается - статус должен это показывать.',
+      'Если карточка пустая, не жди чуда - допиши её.',
+    ],
+  },
+  backlog: {
+    title: 'Как работать с бэклогом',
+    steps: [
+      'Скидывай туда новые задачи, которые ещё не идут в работу.',
+      'Чисти мусорные и мутные карточки.',
+      'Перед спринтом пересмотри приоритеты.',
+      'Не превращай бэклог в кладбище идей.',
+      'В спринт переносится не всё подряд, а только то, что реально можно закрыть.',
+    ],
+  },
+  kanban: {
+    title: 'Как читать канбан-доску',
+    steps: [
+      'Слева - ещё не начато.',
+      'В центре - реально делается.',
+      'Справа - реально закончено.',
+      'Если карточка неделями стоит в одной колонке - у вас проблема.',
+      'Если статус не меняется, доска врёт.',
+    ],
+  },
+  structure: {
+    title: 'Как понять, нужна ли вам структура задач',
+    steps: [
+      'Если проект маленький - скорее всего, не нужна.',
+      'Если есть эпики, большие блоки и подзадачи - уже нужна.',
+      'Если команда теряет общую картину - точно нужна.',
+      'Структура показывает скелет проекта, а не текущий поток.',
+      'Не строй 7 уровней, если вам и 3 пока тяжело читать.',
+    ],
+  },
+  time: {
+    title: 'Как списывать время без боли',
+    steps: [
+      'Работал над задачей - зафиксируй это в тот же день.',
+      'Не копи всё на вечер воскресенья.',
+      'Смотри, где факт начинает съедать оценку.',
+      'Если задача жрёт больше времени, чем планировали, это сигнал, а не позор.',
+      'Учёт времени нужен, чтобы перестать гадать про сроки.',
+    ],
+  },
+  filters: {
+    title: 'Как не утонуть в списке задач',
+    steps: [
+      'Сначала фильтруй по себе.',
+      'Потом по спринту.',
+      'Потом по просрочке или статусу.',
+      'Не смотри на весь проект разом, если тебе нужен конкретный срез.',
+      'Если задач много, фильтр - это не роскошь, а способ выжить.',
+    ],
+  },
+};
+
+const SCREEN_EXTRA_GUIDES = {
+  kanban: [
+    {
+      title: 'Как создать доску в Сфере',
+      steps: [
+        'Перейди в раздел «Канбан» и нажми «Создать доску».',
+        'Укажи название доски и выбери пространство.',
+        'По умолчанию задай базовые колонки: Открыта, В работе, Проверка, Готово.',
+        'Чтобы добавить новую колонку, нажми + справа от существующих колонок.',
+        'В окне настройки укажи название колонки и привяжи к ней нужные статусы.',
+        'Помни: статус, который не привязан ни к одной колонке, на доске не появится.',
+        'После создания доски проверь, что карточки реально попадают в нужные колонки.',
+        'Под каждый новый спринт лучше заводить отдельную доску: так чище видно поток и меньше путаницы по статусам.',
+        'Если доска не совпадает с реальной логикой команды, лучше переделать её сразу, чем потом жить в кривом workflow.',
+      ],
+    },
+  ],
+  structure: [
+    {
+      title: 'Как создать первую структуру задач',
+      steps: [
+        'Перейди в раздел «Структура задач».',
+        'Нажми создание новой структуры.',
+        'Укажи название и пространство.',
+        'Выбери, кто будет видеть структуру.',
+        'Настрой уровни: обычно хватает Эпик -> Задача -> Подзадача.',
+        'Сохрани структуру.',
+      ],
+    },
+  ],
+  time: [
+    {
+      title: 'Как понять, что задачи оцениваются плохо',
+      steps: [
+        'Открой учёт времени.',
+        'Сравни оценку и факт.',
+        'Найди карточки, где факт стабильно выше оценки.',
+        'Посмотри, что у этих задач общего.',
+        'Не обвиняй людей - улучшай декомпозицию и планирование.',
+      ],
+    },
+  ],
 };
 
 const PRIORITY_MAP = {
@@ -83,29 +191,6 @@ const KANBAN_COLS = [
   ]},
 ];
 
-const KANBAN_GUIDE_STEPS = [
-  'Перейди в раздел «Канбан» и нажми «Создать доску»',
-  'Укажи название доски и выбери пространство',
-  'По умолчанию создаются три колонки: ОТКРЫТА, В РАБОТЕ, РЕШЕНА',
-  'Чтобы добавить колонку: нажми «+» справа от существующих колонок',
-  'В окне «Создание колонки» укажи название и привяжи неиспользуемые статусы',
-  'Статусы, не привязанные к колонкам, не отображаются на доске',
-  'Настрой фильтры по спринту и группировку через выпадающие меню сверху',
-  'Кнопка «Настройки доски» — для изменения колонок после создания',
-];
-
-const STRUCTURE_GUIDE_STEPS = [
-  'Открой «Структура задач» и нажми «Новая структура»',
-  'Заполни: Название, Описание (опционально)',
-  'Выбери доступ: «Только у меня» или для всех в пространстве',
-  'Выбери Пространство (например IIR51)',
-  'Настрой Уровень 1: выбери тип задачи (Фича, История, Задача, Дефект, Подзадача)',
-  'Настрой Уровень 2: выбери связь (Дочерние / Связанные) и тип задачи',
-  'Нажми «Добавить уровень» если нужно больше уровней иерархии',
-  'На каждом уровне можно добавить QL-фильтр для ограничения выборки',
-  'Нажми «Сохранить» — структура появится в списке',
-];
-
 const STRUCTURE_TREE = [
   { level: 0, type: 'epic',    key: 'ROB-E01', title: 'Навигация мобильного робота' },
   { level: 1, type: 'task',    key: 'ROB-010', title: 'Obstacle avoidance на базе LiDAR' },
@@ -117,6 +202,8 @@ const STRUCTURE_TREE = [
   { level: 2, type: 'subtask', key: 'ROB-011-2', title: 'Калибровка в 3 зонах' },
   { level: 1, type: 'task',    key: 'ROB-012', title: 'Интеграция навигационного стека ROS2' },
 ];
+
+const KANBAN_VIDEO = '/media/sfera/kanban.webm';
 
 const TIME_DATA = [
   { key: 'ROB-010', title: 'Obstacle avoidance LiDAR', status: 'active',  progress: 65, effort: 72, estimate: '16ч', fact: '11.5ч', deadline: '28.04', assignee: 'Петрова М.' },
@@ -212,28 +299,10 @@ function TabBacklog() {
 
 
 function TabKanban() {
-  const [showGuide, setShowGuide] = useState(false);
   const [activeCardKey, setActiveCardKey] = useState('ROB-032');
 
   return (
     <div className="sc-tab-content sc-kanban-wrap">
-      <div className="sc-kanban-toolbar">
-        <div className="sc-kanban-toolbar-left">
-          <div className="sc-kanban-select">Спринт 1</div>
-          <div className="sc-kanban-select">Группировать по</div>
-        </div>
-        <div className="sc-kanban-toolbar-right">
-          <button type="button" className="sc-kanban-btn sc-kanban-btn--ghost">Вернуться к доскам</button>
-          <button
-            type="button"
-            className={`sc-kanban-btn sc-kanban-btn--ghost ${showGuide ? 'is-active' : ''}`}
-            onClick={() => setShowGuide((prev) => !prev)}
-          >
-            {showGuide ? 'Скрыть гайд' : 'Показать гайд'}
-          </button>
-          <button type="button" className="sc-kanban-btn">Настройки доски</button>
-        </div>
-      </div>
       <div className="sc-kanban-board-shell">
         <div className="sc-kanban">
           {KANBAN_COLS.map((col) => (
@@ -264,32 +333,6 @@ function TabKanban() {
           ))}
         </div>
       </div>
-
-      {showGuide && (
-        <div className="sc-guide-wrap sc-guide-wrap--inline">
-          <PanelCorners size={14} color="var(--color-border-strong)">
-            <div className="sc-guide">
-              <CardTopAccent color="var(--color-accent)" width={48} />
-              <div className="sc-guide-head">
-                <MonoBadge variant="accent">гайд</MonoBadge>
-                <h3 className="sc-guide-title">Как создать доску в Сфере</h3>
-              </div>
-              <ul className="sc-guide-list">
-                {KANBAN_GUIDE_STEPS.map((text, i) => (
-                  <li key={i} className="sc-guide-step">
-                    <span className="sc-guide-num">{String(i + 1).padStart(2, '0')}</span>
-                    <SigilDiamond size={8} color="var(--color-accent)" />
-                    <span className="sc-guide-text">{text}</span>
-                  </li>
-                ))}
-              </ul>
-              <p className="sc-guide-note">
-                Колонка = группа статусов. Статусы, не привязанные ни к одной колонке, не отображаются на доске. По умолчанию Сфера создаёт три колонки: Открыта, В работе, Решена.
-              </p>
-            </div>
-          </PanelCorners>
-        </div>
-      )}
     </div>
   );
 }
@@ -302,7 +345,6 @@ function TabStructure() {
     subtask: 'var(--color-text-tertiary)',
   };
   const typeLabels = { epic: 'Эпик', task: 'Задача', subtask: 'Подзадача' };
-  const [showGuide, setShowGuide] = useState(false);
   const [activeNodeKey, setActiveNodeKey] = useState('ROB-012');
 
   return (
@@ -310,13 +352,6 @@ function TabStructure() {
       <div className="sc-structure-toolbar">
         <div className="sc-structure-select">Выберите владельца</div>
         <div className="sc-structure-toolbar-right">
-          <button
-            type="button"
-            className={`sc-structure-btn sc-structure-btn--ghost ${showGuide ? 'is-active' : ''}`}
-            onClick={() => setShowGuide((prev) => !prev)}
-          >
-            {showGuide ? 'Скрыть гайд' : 'Показать гайд'}
-          </button>
           <button type="button" className="sc-structure-btn">Новая структура</button>
         </div>
       </div>
@@ -350,31 +385,6 @@ function TabStructure() {
         </div>
       </div>
 
-      {showGuide && (
-        <div className="sc-guide-wrap sc-guide-wrap--inline">
-          <PanelCorners size={14} color="var(--color-border-strong)">
-            <div className="sc-guide">
-              <CardTopAccent color="var(--color-accent)" width={48} />
-              <div className="sc-guide-head">
-                <MonoBadge variant="accent">гайд</MonoBadge>
-                <h3 className="sc-guide-title">Как создать структуру задач</h3>
-              </div>
-              <ul className="sc-guide-list">
-                {STRUCTURE_GUIDE_STEPS.map((text, i) => (
-                  <li key={i} className="sc-guide-step">
-                    <span className="sc-guide-num">{String(i + 1).padStart(2, '0')}</span>
-                    <SigilDiamond size={8} color="var(--color-accent)" />
-                    <span className="sc-guide-text">{text}</span>
-                  </li>
-                ))}
-              </ul>
-              <p className="sc-guide-tip">
-                Типы задач в Сфере: Фича, История, Задача, Дефект, Подзадача. Для студенческого проекта обычно хватает двух уровней: Задача → Подзадача.
-              </p>
-            </div>
-          </PanelCorners>
-        </div>
-      )}
     </div>
   );
 }
@@ -460,6 +470,39 @@ function TabFilters() {
   );
 }
 
+function ScreenGuidePanel({ tabId }) {
+  const guide = SCREEN_GUIDES[tabId];
+  if (!guide) return null;
+  const guides = [guide, ...(SCREEN_EXTRA_GUIDES[tabId] ?? [])];
+
+  return (
+    <div data-reveal className="sc-guide-wrap sc-guide-dynamic motion-panel">
+      <div className="sc-guide-stack">
+        {guides.map((item) => (
+          <PanelCorners key={item.title} size={14} color="var(--color-border-strong)">
+            <div className="sc-guide">
+              <CardTopAccent color="var(--color-accent)" width={48} />
+              <div className="sc-guide-head">
+                <MonoBadge variant="accent">гайд</MonoBadge>
+                <h3 className="sc-guide-title">{item.title}</h3>
+              </div>
+              <ul className="sc-guide-list">
+                {item.steps.map((text, i) => (
+                  <li key={text} className="sc-guide-step">
+                    <span className="sc-guide-num">{String(i + 1).padStart(2, '0')}</span>
+                    <SigilDiamond size={8} color="var(--color-accent)" />
+                    <span className="sc-guide-text">{text}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </PanelCorners>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 
 const TAB_COMPONENTS = {
   tasks:     TabTasks,
@@ -488,8 +531,9 @@ export default function ScreensSection() {
           </div>
 
           <p className="sc-intro">
-            В Сфере много экранов, но для работы хватит шести. Переключайся между вкладками —
-            каждый экран показан так, как ты увидишь его в реальном проекте.
+            Это карта выживания по интерфейсу Сферы.
+            Тебе не нужно помнить все вкладки - важно понимать,
+            в какой экран идти за конкретным ответом и что там делать.
           </p>
 
           <div className="ds-ascii-strip">
@@ -546,6 +590,18 @@ export default function ScreensSection() {
               </div>
             </PanelCorners>
           </div>
+
+          {activeTab === 'kanban' && (
+            <GuideVideo
+              className="sc-kanban-video-block"
+              src={KANBAN_VIDEO}
+              badge="kanban / webm"
+              title="Канбан-доска вживую"
+              caption="Проверяй главное: карточка двигается между колонками, а статус меняется вместе с ней."
+            />
+          )}
+
+          <ScreenGuidePanel tabId={activeTab} />
 
           <div style={{ marginTop: '2rem', maxWidth: 500 }}>
             <DividerNodeLine />
@@ -868,6 +924,11 @@ const CSS = `
 
   .sc-kanban-wrap { padding: 1.2rem 1.5rem 0.85rem; }
 
+  .sc-kanban-video-block {
+    margin-top: 0;
+    margin-bottom: 1.2rem;
+  }
+
   .sc-kanban-toolbar {
     display: flex;
     align-items: center;
@@ -1012,6 +1073,15 @@ const CSS = `
 
   .sc-guide-wrap {
     margin-top: 1.5rem;
+  }
+
+  .sc-guide-stack {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .sc-guide-dynamic {
+    margin-bottom: 1.2rem;
   }
 
   .sc-guide-wrap--inline {
@@ -1383,6 +1453,9 @@ const CSS = `
     }
     .sc-kanban { grid-template-columns: 1fr; }
     .sc-kanban-wrap { padding: 1rem; }
+    .sc-kanban-video-block {
+      margin-bottom: 1rem;
+    }
     .sc-kanban-toolbar { margin-bottom: 0.75rem; }
     .sc-kanban-toolbar-right { width: 100%; }
     .sc-kanban-btn,

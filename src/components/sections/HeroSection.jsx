@@ -9,6 +9,7 @@ import {
   CardTopAccent, CardGlyphWatermark,
 } from '../glyphs';
 import AsciiCharm from '../ascii/AsciiCharm';
+import GuideVideo from '../media/GuideVideo';
 
 const TERMINAL_LINES = [
   { prefix: '$', text: 'sfera --checklist' },
@@ -19,6 +20,8 @@ const TERMINAL_LINES = [
   { prefix: '5', text: 'списать время после работы' },
   { prefix: '✓', text: 'готово. ты уже лучше 80% команд.', status: 'active' },
 ];
+
+const HERO_OVERVIEW_VIDEO = '/media/sfera/bystryobzor.webm';
 
 export default function HeroSection() {
   const revealRef = useScrollReveal({ threshold: 0.1 });
@@ -144,6 +147,15 @@ export default function HeroSection() {
               </PanelCorners>
               <CardGlyphWatermark glyph="circuit" size={140} />
             </div>
+
+            <GuideVideo
+              className="hero-video-block"
+              src={HERO_OVERVIEW_VIDEO}
+              badge="hero / webm"
+              title="Быстрый обзор интерфейса Сферы"
+              caption="Смотри на общую механику: пространство, вход в «Мои задачи» и стартовый рабочий контекст."
+              accent="var(--color-accent-gold)"
+            />
           </div>
         </div>
 
@@ -273,6 +285,11 @@ const CSS = `
     position: relative;
   }
 
+  .hero-video-block {
+    margin-top: 1rem;
+    margin-bottom: 0;
+  }
+
 
   .hero-terminal {
     position: relative;
@@ -367,6 +384,9 @@ const CSS = `
     }
     .hero-terminal-body {
       min-height: 150px;
+    }
+    .hero-video-block {
+      margin-top: 0.8rem;
     }
     .hero-cta-row {
       flex-direction: column;

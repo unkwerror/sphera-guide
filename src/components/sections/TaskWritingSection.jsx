@@ -1,15 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { animate, stagger } from 'motion';
 import { useScrollRevealAll } from '../../hooks/useScrollReveal';
 import {
   SigilDiamond, SigilHexNode,
-  DividerNodeLine, DividerCircuitTrace, DividerDashedTerminal,
+  DividerNodeLine, DividerDashedTerminal,
   PanelCorners,
   StatusDot, BracketOrnament,
   MonoBadge,
-  CardTopAccent, CardGlyphWatermark, CardIndexNum, SectionGhostNum,
+  CardTopAccent, CardGlyphWatermark, SectionGhostNum,
   SigilBullet,
 } from '../glyphs';
 import AsciiCharm from '../ascii/AsciiCharm';
+import GuideVideo from '../media/GuideVideo';
 
 
 /* ═══════════════════════════════════════
@@ -18,88 +20,93 @@ import AsciiCharm from '../ascii/AsciiCharm';
 
 const TABS = [
   { id: 'editor',   label: 'Редактор задач' },
-  { id: 'smart',    label: 'SMART гид' },
   { id: 'examples', label: 'Примеры' },
   { id: 'guides',   label: 'Практика в Сфере' },
 ];
 
 const BAD_EXAMPLES = [
-  { text: 'Сделать робота',                    why: 'Что конкретно? Какого? За сколько? Кто?' },
-  { text: 'Разобраться с навигацией',           why: 'Нет результата. Нет критерия «готово».' },
-  { text: 'Пофиксить баги',                    why: 'Какие баги? Где? Когда?' },
-  { text: 'Улучшить проект',                   why: 'Размытая цель без измеримого результата.' },
+  { text: 'Сделать backend',                    why: 'Слишком широко: неясно, какой кусок и где конец работы.' },
+  { text: 'Разобраться с лидаром',              why: 'Нет критерия готовности. Как понять, что задача закрыта?' },
+  { text: 'Пофиксить баги по навигации',        why: 'Какие баги, в каком модуле и в каком объеме?' },
+  { text: 'Допилить интерфейс',                 why: 'Это не задача, а настроение. Нужны конкретные действия и артефакт.' },
 ];
 
 const GOOD_EXAMPLES = [
-  { text: 'Калибровка LiDAR VLP-16 для indoor навигации — drift < 5cm на 10м. Спринт 2, 8ч, Петрова М.' },
-  { text: 'Написать unit-тесты для PID-регулятора скорости — покрыть 3 режима (P, PI, PID), assert на setpoint ±2%. До пятницы.' },
-  { text: 'Документация REST API контроллера захвата — Swagger-spec для 6 эндпоинтов, примеры запросов. 4ч, Иванов А.' },
-  { text: 'Создать 3D-модель корпуса робота в Fusion 360 с точностью до 0.5мм. До конца спринта.' },
+  { text: 'Калибровать LiDAR VLP-16: добиться drift < 5 см на 10 м в 3 сценариях. Спринт 2, 8ч, Петрова М.' },
+  { text: 'Написать unit-тесты для PID-регулятора: покрыть режимы P/PI/PID и зафиксировать setpoint ±2%. До пятницы.' },
+  { text: 'Описать REST API контроллера в Swagger: 6 эндпоинтов + примеры запросов/ответов. 4ч, Иванов А.' },
+  { text: 'Собрать экран профиля и вывести статусы задач из API. Definition of done: данные грузятся без моков.' },
 ];
 
 const SMART_RULES = [
   {
-    letter: 'S', label: 'Specific', ru: 'Конкретная',
-    desc: 'Что именно нужно сделать? Не «улучшить», а «реализовать», «настроить», «написать».',
-    example: 'Реализовать obstacle avoidance на базе LiDAR для робоплатформы',
+    letter: 'S',
+    title: 'Specific / Конкретика',
+    check: 'Назови конкретное действие: что делаем, с чем работаем, какой результат ждём.',
   },
   {
-    letter: 'M', label: 'Measurable', ru: 'Измеримая',
-    desc: 'Как понять, что задача выполнена? Нужен критерий: тест проходит, drift < 5cm, документация готова.',
-    example: 'Робот объезжает 3 из 3 препятствий на тестовом полигоне',
+    letter: 'M',
+    title: 'Measurable / Проверяемость',
+    check: 'Добавь критерий готовности: метрика, тест, артефакт или демонстрация.',
   },
   {
-    letter: 'A', label: 'Achievable', ru: 'Достижимая',
-    desc: 'Реально ли сделать за спринт одним человеком? Если нет — разбей на подзадачи.',
-    example: '8 часов работы, все зависимости (ROS2, датчик) уже есть',
+    letter: 'A',
+    title: 'Achievable / Реалистичность',
+    check: 'Объём должен быть подъёмным для одного человека в рамках спринта.',
   },
   {
-    letter: 'R', label: 'Relevant', ru: 'Релевантная',
-    desc: 'Зачем это нужно проекту? Задача должна двигать проект к цели, а не быть «для галочки».',
-    example: 'Без навигации робот не поедет — это blocker для демо',
+    letter: 'R',
+    title: 'Relevant / Польза проекту',
+    check: 'Чётко ответь, зачем это нужно прямо сейчас и какую проблему это снимает.',
   },
   {
-    letter: 'T', label: 'Time-bound', ru: 'Ограничена по времени',
-    desc: 'Когда дедлайн? Сколько часов? В каком спринте? Без срока задача не существует.',
-    example: 'Спринт 2, дедлайн 28.04, оценка 8ч',
+    letter: 'T',
+    title: 'Time-bound / Срок',
+    check: 'Укажи дедлайн, оценку в часах и спринт. Без срока задача не управляется.',
   },
 ];
 
 const CREATE_TASK_STEPS = [
-  'Открой нужное пространство и нажми «Создать задачу».',
-  'Заполни обязательные поля: Название, Пространство, Тип задачи, Приоритет.',
-  'Добавь описание с критерием готовности: что именно проверяем в конце.',
-  'Назначь исполнителя и владельца задачи.',
-  'Укажи срок, оценку в часах и спринт (если задача уже запланирована).',
-  'При необходимости добавь метки, вложения и связанные/дочерние задачи.',
-  'Нажми «Сохранить» и сразу проверь, что задача попала в нужный статус.',
+  'Нажми «Создать задачу».',
+  'Впиши нормальное название, а не «доделать проект».',
+  'В описании укажи, что именно надо сделать.',
+  'Добавь критерий готовности.',
+  'Назначь исполнителя.',
+  'Укажи срок.',
+  'Поставь оценку.',
+  'Если уже идёт спринт — привяжи задачу к нему.',
+  'Сохрани карточку.',
+  'Если после сохранения задача всё ещё мутная — вернись и допиши.',
 ];
 
 const TRACK_TASK_STEPS = [
-  'Открой уже существующую задачу в режиме редактирования.',
-  'Найди действие «Отслеживать задачу» в карточке.',
-  'Добавь себя или других наблюдателей по ФИО.',
-  'Подтверди выбор — после этого начнут приходить уведомления по изменениям.',
+  'Открой уже созданную задачу.',
+  'Найди действие «Отслеживать задачу».',
+  'Добавь себя в наблюдатели.',
+  'Проверь, что теперь задача у тебя в отслеживаемых.',
+  'Если не хочешь пропускать изменения — делай так на важных карточках.',
 ];
 
-const STATUS_NOTES = [
-  'Новый статус обычно создаёт только администратор процесса/пространства.',
-  'Если добавить статус без переходов workflow, он не появится у команды.',
-  'Обычный участник выбирает только существующие переходы в карточке задачи.',
+const IN_PROGRESS_STEPS = [
+  'Открой карточку задачи.',
+  'Поменяй статус на рабочий.',
+  'Не держи реальную работу в статусе «Открыта».',
+  'Если завис — напиши блокер в комментарии.',
 ];
 
-const STATUS_REQUEST_TEMPLATE = [
-  'Название статуса: «Ожидает данных»',
-  'Зачем: блок для ML-задач без датасета',
-  'Где стоит: между «Анализ» и «В работе»',
-  'Кто использует: команда CV / AI',
+const SMART_SAVE_GUIDE = [
+  'Пойми, что именно делаем.',
+  'Пойми, как проверяем результат.',
+  'Убедись, что задачу реально вытянуть.',
+  'Проверь, что она нужна проекту прямо сейчас.',
+  'Укажи дедлайн, оценку и спринт.',
 ];
 
 const GUIDE_LINKS = [
-  { label: 'Сфера.Задачи', url: 'https://www.sferaplatform.ru/sfera-zadachi' },
-  { label: 'SaaS Сфера.Задачи', url: 'https://saas.sferaplatform.ru/products/tasks' },
   { label: 'Документация платформы', url: 'https://www.sferaplatform.ru/page71488711.html' },
 ];
+
+const TASK_CREATION_VIDEO = '/media/sfera/sozdnyecartochky.webm';
 
 const MOCK_TASK = {
   title: 'Калибровка LiDAR VLP-16 для indoor навигации',
@@ -162,12 +169,83 @@ function MockSelect({ label, value, required, color }) {
    TAB PANELS
    ═══════════════════════════════════════ */
 
+function SmartCriticalBlock({ blockRef }) {
+  return (
+    <div ref={blockRef} data-reveal className="tw-critical-wrap motion-panel">
+      <PanelCorners size={14} color="var(--color-border-strong)">
+        <div className="tw-critical">
+          <CardTopAccent color="var(--color-error)" width={52} />
+
+          <div className="tw-critical-head">
+            <StatusDot status="warning" size={8} />
+            <MonoBadge variant="accent">ОЧЕНЬ ВАЖНАЯ ИНФОРМАЦИЯ</MonoBadge>
+          </div>
+
+          <h3 className="tw-critical-title">SMART-проверка перед сохранением задачи</h3>
+          <p className="tw-critical-subtitle">
+            Если карточка не проходит SMART — не отправляй её в спринт.
+            Сначала допиши задачу до рабочего состояния.
+          </p>
+
+          <div className="tw-critical-word" aria-hidden="true">
+            {SMART_RULES.map((rule) => (
+              <span key={rule.letter} className="tw-critical-word-letter">{rule.letter}</span>
+            ))}
+          </div>
+
+          <div className="tw-critical-grid">
+            {SMART_RULES.map((rule) => (
+              <div key={rule.letter} className="tw-critical-item motion-border">
+                <div className="tw-critical-item-head">
+                  <span className="tw-critical-item-mark">{rule.letter}</span>
+                  <span className="tw-critical-item-title">{rule.title}</span>
+                </div>
+                <span className="tw-critical-check">{rule.check}</span>
+              </div>
+            ))}
+          </div>
+
+          <p className="tw-critical-note">
+            Минимум перед кнопкой «Сохранить»: что делаем, как проверяем, кто делает, когда дедлайн.
+          </p>
+        </div>
+      </PanelCorners>
+    </div>
+  );
+}
+
+function SmartSaveGuide() {
+  return (
+    <div data-reveal className="tw-smart-helper-wrap motion-panel">
+      <PanelCorners size={12} color="var(--color-border-strong)">
+        <div className="tw-smart-helper">
+          <CardTopAccent color="var(--color-accent-gold)" width={40} />
+          <div className="tw-smart-helper-head">
+            <MonoBadge variant="gold">helper</MonoBadge>
+            <h4 className="tw-smart-helper-title">Как проверить задачу перед кнопкой «Сохранить»</h4>
+          </div>
+          <ul className="tw-smart-helper-list">
+            {SMART_SAVE_GUIDE.map((step, i) => (
+              <li key={step} className="tw-smart-helper-step">
+                <span className="tw-smart-helper-num">{String(i + 1).padStart(2, '0')}</span>
+                <SigilDiamond size={8} color="var(--color-accent)" />
+                <span className="tw-smart-helper-text">{step}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </PanelCorners>
+    </div>
+  );
+}
+
+
 function TabEditor() {
   return (
     <div className="tw-tab-content">
       <div className="tw-editor-label-row">
         <SigilHexNode size={20} color="var(--color-accent)" />
-        <span className="tw-editor-label">Так выглядит хорошая задача в Сфере</span>
+        <span className="tw-editor-label">Так выглядит рабочая карточка в Сфере</span>
       </div>
 
       <div className="tw-editor-wrap">
@@ -230,37 +308,6 @@ function TabEditor() {
 }
 
 
-function TabSmart() {
-  return (
-    <div className="tw-tab-content">
-      <div className="tw-smart-divider">
-        <DividerCircuitTrace />
-      </div>
-
-      <div className="tw-smart-grid">
-        {SMART_RULES.map((rule, i) => (
-          <div key={rule.letter} className="tw-smart-card motion-border">
-            <div className="tw-smart-card-head">
-              <span className="tw-smart-letter">{rule.letter}</span>
-              <div>
-                <span className="tw-smart-en">{rule.label}</span>
-                <span className="tw-smart-ru">{rule.ru}</span>
-              </div>
-              <CardIndexNum num={String(i + 1).padStart(2, '0')} />
-            </div>
-            <p className="tw-smart-desc">{rule.desc}</p>
-            <div className="tw-smart-example">
-              <SigilDiamond size={8} color="var(--color-accent)" />
-              <span>{rule.example}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-
 function TabExamples() {
   return (
     <div className="tw-tab-content tw-examples">
@@ -268,7 +315,7 @@ function TabExamples() {
       <div className="tw-ex-section">
         <div className="tw-ex-header">
           <StatusDot status="error" size={8} />
-          <span className="tw-ex-title tw-ex-title--bad">Плохие примеры</span>
+            <span className="tw-ex-title tw-ex-title--bad">Плохо: шум</span>
         </div>
         <div className="tw-ex-list">
           {BAD_EXAMPLES.map((ex, i) => (
@@ -287,7 +334,7 @@ function TabExamples() {
       <div className="tw-ex-section">
         <div className="tw-ex-header">
           <StatusDot status="done" size={8} />
-          <span className="tw-ex-title tw-ex-title--good">Хорошие примеры</span>
+            <span className="tw-ex-title tw-ex-title--good">Хорошо: рабочая карточка</span>
         </div>
         <div className="tw-ex-list">
           {GOOD_EXAMPLES.map((ex, i) => (
@@ -337,25 +384,16 @@ function TabGuides() {
 
         <div className="tw-guide-card motion-border">
           <div className="tw-guide-head">
-            <StatusDot status="warning" size={7} />
-            <span>Статусы и права доступа</span>
+            <StatusDot status="active" size={7} />
+            <span>Как перевести задачу в работу</span>
           </div>
-          <ul className="tw-guide-bullets">
-            {STATUS_NOTES.map((item) => (
-              <li key={item} className="tw-guide-bullet">
-                <SigilBullet type="diamond" size={9} color="var(--color-accent)" />
-                <span>{item}</span>
+          <ol className="tw-guide-list">
+            {IN_PROGRESS_STEPS.map((step) => (
+              <li key={step} className="tw-guide-item">
+                {step}
               </li>
             ))}
-          </ul>
-          <div className="tw-guide-template">
-            <span className="tw-guide-template-label">Шаблон запроса на новый статус</span>
-            {STATUS_REQUEST_TEMPLATE.map((line) => (
-              <div key={line} className="tw-guide-template-line">
-                {line}
-              </div>
-            ))}
-          </div>
+          </ol>
         </div>
       </div>
 
@@ -385,6 +423,85 @@ function TabGuides() {
 export default function TaskWritingSection() {
   const containerRef = useScrollRevealAll({ threshold: 0.08 });
   const [activeTab, setActiveTab] = useState('editor');
+  const criticalRef = useRef(null);
+
+  useEffect(() => {
+    const root = criticalRef.current;
+    if (!root) return undefined;
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reducedMotion) return undefined;
+
+    const controls = [];
+    let hasAnimated = false;
+
+    const run = () => {
+      const panel = root.querySelector('.tw-critical');
+      const title = root.querySelector('.tw-critical-title');
+      const subtitle = root.querySelector('.tw-critical-subtitle');
+      const note = root.querySelector('.tw-critical-note');
+      const items = Array.from(root.querySelectorAll('.tw-critical-item'));
+
+      if (panel) {
+        controls.push(
+          animate(
+            panel,
+            { opacity: [0.86, 1], y: [8, 0] },
+            { duration: 0.45, ease: 'ease-out' },
+          ),
+        );
+      }
+
+      if (title || subtitle) {
+        controls.push(
+          animate(
+            [title, subtitle].filter(Boolean),
+            { opacity: [0, 1], y: [10, 0] },
+            { delay: stagger(0.08), duration: 0.42, ease: 'ease-out' },
+          ),
+        );
+      }
+
+      if (items.length) {
+        controls.push(
+          animate(
+            items,
+            { opacity: [0, 1], y: [12, 0], filter: ['blur(2px)', 'blur(0px)'] },
+            { delay: stagger(0.08, { from: 'first' }), duration: 0.5, ease: 'ease-out' },
+          ),
+        );
+      }
+
+      if (note) {
+        controls.push(
+          animate(
+            note,
+            { opacity: [0, 1] },
+            { delay: 0.34, duration: 0.4, ease: 'ease-out' },
+          ),
+        );
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const isVisible = entries.some((entry) => entry.isIntersecting);
+        if (isVisible && !hasAnimated) {
+          hasAnimated = true;
+          run();
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.2 },
+    );
+
+    observer.observe(root);
+
+    return () => {
+      observer.disconnect();
+      controls.forEach((control) => control?.stop?.());
+    };
+  }, []);
 
   return (
     <>
@@ -398,14 +515,18 @@ export default function TaskWritingSection() {
           </div>
 
           <p className="tw-intro">
-            Уже половина семестра, а карточки выглядят как поток @#$%-мыслей? Знакомо.
-            Здесь разберём, как делать задачи так, чтобы команда не врезалась в дедлайн лбом.
+            Если без голосового в Telegram задачу не понять - карточка написана плохо.
+            Ниже короткий минимум, который превращает «что-то поделать» в задачу,
+            с которой команда реально может работать.
           </p>
 
           <div className="ds-ascii-strip ds-ascii-strip--soft">
             <AsciiCharm variant="typing" size="md" tone="accent" seed="task-typing" />
             <AsciiCharm variant="spark" size="xs" tone="gold" seed="task-spark" />
           </div>
+
+          <SmartCriticalBlock blockRef={criticalRef} />
+          <SmartSaveGuide />
 
           {/* ── TABS ── */}
           <div data-reveal className="tw-tabs-wrap motion-reveal">
@@ -428,11 +549,19 @@ export default function TaskWritingSection() {
             {/* ── TAB CONTENT ── */}
             <div className="tw-panel">
               {activeTab === 'editor' && <TabEditor />}
-              {activeTab === 'smart' && <TabSmart />}
               {activeTab === 'examples' && <TabExamples />}
               {activeTab === 'guides' && <TabGuides />}
             </div>
           </div>
+
+          <GuideVideo
+            className="tw-video-outside"
+            src={TASK_CREATION_VIDEO}
+            badge="task create / webm"
+            title="Создание задачи в реальном интерфейсе"
+            caption="Проверь после сохранения: карточка не мутная, проходит SMART и сразу понятна всей команде."
+            accent="var(--color-accent-gold)"
+          />
 
           <div style={{ marginTop: '2rem', maxWidth: 500 }}>
             <DividerNodeLine />
@@ -462,6 +591,232 @@ const CSS = `
     line-height: 1.7;
     max-width: 680px;
     margin: 0 0 2.5rem;
+  }
+
+  /* ── CRITICAL SMART BLOCK ── */
+
+  .tw-critical-wrap {
+    margin-bottom: 1.6rem;
+  }
+
+  .tw-critical {
+    position: relative;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 1.2rem 1.3rem 1.35rem;
+    overflow: hidden;
+    isolation: isolate;
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-accent-gold) 22%, transparent),
+      0 0 24px color-mix(in srgb, var(--color-accent) 10%, transparent);
+  }
+
+  .tw-critical > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .tw-critical::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    pointer-events: none;
+    border: 1px solid color-mix(in srgb, var(--color-accent-gold) 45%, transparent);
+    opacity: 0.42;
+    z-index: 0;
+  }
+
+  .tw-critical-head {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .tw-critical-title {
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text);
+    margin: 0 0 0.55rem;
+  }
+
+  .tw-critical-subtitle {
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    color: var(--color-text-secondary);
+    line-height: 1.55;
+    margin: 0 0 0.95rem;
+    max-width: 860px;
+  }
+
+  .tw-critical-word {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--color-border);
+    border: 1px solid var(--color-border);
+    margin: 0 0 0.7rem;
+  }
+
+  .tw-critical-word-letter {
+    font-family: var(--font-mono);
+    font-size: 1.85rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    color: var(--color-accent);
+    text-shadow: var(--glow-accent);
+    background: color-mix(in srgb, var(--color-bg-raised) 88%, transparent);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0;
+  }
+
+  .tw-critical-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--color-border);
+    border: 1px solid var(--color-border);
+    margin-bottom: 0.75rem;
+  }
+
+  .tw-critical-item {
+    background: color-mix(in srgb, var(--color-bg-raised) 88%, transparent);
+    padding: 0.72rem 0.76rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+    border: 1px solid transparent;
+    min-height: 142px;
+  }
+
+  .tw-critical-item-head {
+    display: flex;
+    align-items: center;
+    gap: 0.42rem;
+  }
+
+  .tw-critical-item-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.45rem;
+    height: 1.45rem;
+    font-family: var(--font-mono);
+    font-size: 0.96rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--color-accent);
+    border: 1px solid color-mix(in srgb, var(--color-accent) 35%, var(--color-border));
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  }
+
+  .tw-critical-item-title {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text);
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .tw-critical-check {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    color: var(--color-text-secondary);
+    line-height: 1.46;
+  }
+
+  .tw-critical-note {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: 0.83rem;
+    color: var(--color-accent-gold);
+    line-height: 1.55;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--color-border);
+    font-weight: 500;
+  }
+
+  .tw-smart-helper-wrap {
+    margin: 0 0 1.25rem;
+    max-width: 980px;
+  }
+
+  .tw-smart-helper {
+    position: relative;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 0.95rem 1rem 1.05rem;
+    overflow: hidden;
+  }
+
+  .tw-smart-helper-head {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-bottom: 0.72rem;
+    flex-wrap: wrap;
+  }
+
+  .tw-smart-helper-title {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--color-text);
+  }
+
+  .tw-smart-helper-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.46rem;
+  }
+
+  .tw-smart-helper-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .tw-smart-helper-num {
+    min-width: 1.4rem;
+    padding-top: 2px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--color-text-tertiary);
+  }
+
+  .tw-smart-helper-step > svg {
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  .tw-smart-helper-text {
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tw-critical::before {
+      opacity: 0.4;
+    }
   }
 
   /* ── TABS ── */
@@ -557,6 +912,11 @@ const CSS = `
     position: relative;
     max-width: 900px;
     margin: 0 auto;
+  }
+
+  .tw-video-outside {
+    max-width: 980px;
+    margin: 1rem auto 0;
   }
 
   .tw-editor {
@@ -690,87 +1050,6 @@ const CSS = `
     font-size: 0.6rem;
     color: var(--color-text-tertiary);
   }
-
-  /* ── SMART TAB ── */
-
-  .tw-smart-divider {
-    margin-bottom: 1.5rem;
-    max-width: 500px;
-  }
-
-  .tw-smart-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 1px;
-    background: var(--color-border);
-    border: 1px solid var(--color-border);
-  }
-
-  .tw-smart-card {
-    background: var(--color-bg-raised);
-    padding: 1.5rem;
-    transition: background var(--transition-fast);
-  }
-
-  .tw-smart-card:hover { background: var(--color-surface-hover); }
-
-  .tw-smart-card-head {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-  }
-
-  .tw-smart-letter {
-    font-family: var(--font-mono);
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--color-accent);
-    line-height: 1;
-    text-shadow: var(--glow-accent);
-  }
-
-  .tw-smart-en {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--color-text);
-    display: block;
-  }
-
-  .tw-smart-ru {
-    font-family: var(--font-body);
-    font-size: 0.75rem;
-    color: var(--color-text-tertiary);
-    display: block;
-  }
-
-  .tw-smart-card-head > :last-child { margin-left: auto; }
-
-  .tw-smart-desc {
-    font-family: var(--font-body);
-    font-size: 0.85rem;
-    color: var(--color-text-secondary);
-    line-height: 1.6;
-    margin: 0 0 1rem;
-  }
-
-  .tw-smart-example {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 0.75rem;
-    background: var(--color-bg);
-    border: 1px solid var(--color-border-subtle);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--color-accent);
-    line-height: 1.5;
-  }
-
-  .tw-smart-example > svg { flex-shrink: 0; margin-top: 2px; }
 
   /* ── EXAMPLES TAB ── */
 
@@ -961,6 +1240,20 @@ const CSS = `
     .tw-guides-grid { grid-template-columns: 1fr; }
   }
 
+  @media (max-width: 900px) {
+    .tw-critical-word {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .tw-critical-word-letter {
+      font-size: 1.52rem;
+    }
+
+    .tw-critical-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
   @media (max-width: 640px) {
     .tw-intro {
       font-size: 1rem;
@@ -994,6 +1287,84 @@ const CSS = `
       padding: 1rem;
     }
 
+    .tw-critical {
+      padding: 1rem 0.95rem 1.1rem;
+    }
+
+    .tw-critical-title {
+      font-size: 0.8rem;
+      line-height: 1.35;
+    }
+
+    .tw-critical-subtitle {
+      font-size: 0.84rem;
+      line-height: 1.5;
+      margin-bottom: 0.8rem;
+    }
+
+    .tw-critical-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .tw-critical-word {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      margin-bottom: 0.62rem;
+    }
+
+    .tw-critical-word-letter {
+      font-size: 1.22rem;
+      padding: 0.42rem 0;
+    }
+
+    .tw-critical-item {
+      padding: 0.66rem 0.72rem;
+      min-height: auto;
+      gap: 0.45rem;
+    }
+
+    .tw-critical-item-head {
+      gap: 0.38rem;
+    }
+
+    .tw-critical-item-mark {
+      width: 1.3rem;
+      height: 1.3rem;
+      font-size: 0.86rem;
+    }
+
+    .tw-critical-item-title {
+      font-size: 0.64rem;
+    }
+
+    .tw-critical-check {
+      font-size: 0.8rem;
+      line-height: 1.45;
+    }
+
+    .tw-critical-note {
+      font-size: 0.8rem;
+      line-height: 1.5;
+      padding-top: 0.62rem;
+    }
+
+    .tw-smart-helper {
+      padding: 0.88rem 0.88rem 0.95rem;
+    }
+
+    .tw-smart-helper-title {
+      font-size: 0.72rem;
+      line-height: 1.4;
+    }
+
+    .tw-smart-helper-text {
+      font-size: 0.82rem;
+      line-height: 1.54;
+    }
+
+    .tw-critical::before {
+      opacity: 0.36;
+    }
+
     .tw-editor-label {
       font-size: 0.74rem;
       letter-spacing: 0.07em;
@@ -1001,6 +1372,10 @@ const CSS = `
 
     .tw-editor-title-label {
       font-size: 1rem;
+    }
+
+    .tw-video-outside {
+      margin-top: 0.85rem;
     }
 
     .tw-field-label {
@@ -1019,11 +1394,6 @@ const CSS = `
       line-height: 1.55;
     }
 
-    .tw-smart-card {
-      padding: 1.1rem;
-    }
-
-    .tw-smart-desc,
     .tw-guide-item,
     .tw-guide-bullet {
       font-size: 0.86rem;

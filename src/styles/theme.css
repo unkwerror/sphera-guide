@@ -83,44 +83,44 @@ body::-webkit-scrollbar {
 
 /* ── LIGHT (alternative — inverted cool) ── */
 [data-theme='light'] {
-  --color-bg: #f0f2f6;
-  --color-bg-raised: #f8f9fb;
-  --color-bg-sunken: #e4e7ed;
-  --color-bg-overlay: rgba(240, 242, 246, 0.92);
+  --color-bg: #f5f7fb;
+  --color-bg-raised: #edf2f9;
+  --color-bg-sunken: #e3eaf4;
+  --color-bg-overlay: rgba(245, 247, 251, 0.9);
 
   --color-surface: #ffffff;
-  --color-surface-hover: #edf0f5;
-  --color-surface-active: #e0e4ec;
+  --color-surface-hover: #f6f9ff;
+  --color-surface-active: #ebf2fc;
 
-  --color-border: #cdd2dc;
-  --color-border-strong: #a8b0c0;
-  --color-border-subtle: #e0e4ec;
+  --color-border: #d4ddeb;
+  --color-border-strong: #b7c5da;
+  --color-border-subtle: #e6edf7;
 
-  --color-text: #12151b;
-  --color-text-secondary: #4a5568;
-  --color-text-tertiary: #8892a4;
-  --color-text-inverse: #f0f2f6;
+  --color-text: #1a2233;
+  --color-text-secondary: #455470;
+  --color-text-tertiary: #6f7f9b;
+  --color-text-inverse: #f5f7fb;
 
-  --color-accent: #3a6f96;
-  --color-accent-hover: #2d5a7c;
-  --color-accent-muted: rgba(58, 111, 150, 0.1);
-  --color-accent-text: #f0f2f6;
+  --color-accent: #2f6ea3;
+  --color-accent-hover: #245d8d;
+  --color-accent-muted: rgba(47, 110, 163, 0.14);
+  --color-accent-text: #ffffff;
 
-  --color-accent-gold: #8a7050;
-  --color-accent-gold-muted: rgba(138, 112, 80, 0.1);
+  --color-accent-gold: #9a7b4b;
+  --color-accent-gold-muted: rgba(154, 123, 75, 0.13);
 
-  --color-glyph: #cdd2dc;
-  --color-glyph-hover: #8892a4;
+  --color-glyph: #ced8e9;
+  --color-glyph-hover: #aebdd6;
 
-  --color-success: #3a7a4a;
-  --color-warning: #8a7040;
-  --color-error: #8a4a4a;
-  --color-info: #3a6f96;
+  --color-success: #2f7a58;
+  --color-warning: #9a6f2d;
+  --color-error: #b34b4b;
+  --color-info: #2f6ea3;
 
-  --glow-accent: none;
-  --glow-gold: none;
+  --glow-accent: 0 0 10px rgba(47, 110, 163, 0.2);
+  --glow-gold: 0 0 10px rgba(154, 123, 75, 0.24);
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 1px 2px rgba(21, 34, 56, 0.06);
+  --shadow-md: 0 8px 20px rgba(21, 34, 56, 0.1);
+  --shadow-lg: 0 16px 40px rgba(21, 34, 56, 0.14);
 }
